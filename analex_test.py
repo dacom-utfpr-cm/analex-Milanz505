@@ -1,3 +1,4 @@
+import re
 import pytest
 import subprocess
 import shlex
@@ -22,17 +23,23 @@ def test_execute(input_file, args):
 
     stdout, stderr = process.communicate()
 
+    # Remover o \r da saída gerada e normalizar as quebras de linha
+    generated_output = stdout.decode("utf-8").replace('\r', '').strip()
+
+    # Ler a saída esperada do arquivo
     path_file = 'tests/' + input_file
-    with open(path_file + ".lex.out", "r") as output_file:
-        expected_output = output_file.read()
+    output_file = open(path_file + ".lex.out", "r")
 
-    # Debug
-    print("Generated output (raw):")
-    print(repr(stdout.decode("utf-8")))
-    print("Expected output (raw):")
-    print(repr(expected_output))
+    # Ler o conteúdo do arquivo de saída esperado e remover espaços extras
+    expected_output = output_file.read().strip()
 
-    generated_output = stdout.decode("utf-8").replace('\r\n', '\n').strip()
-    expected_output = expected_output.replace('\r\n', '\n').strip()
+    output_file.close()
 
-    assert generated_output == expected_output, f"Generated: {repr(generated_output)}\nExpected: {repr(expected_output)}"
+    # Imprimir as saídas para depuração
+    print("Generated output:")
+    print(generated_output)
+    print("Expected output:")
+    print(expected_output)
+
+    # Comparando a saída gerada com a saída esperada
+    assert generated_output == expected_output
